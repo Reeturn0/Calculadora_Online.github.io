@@ -1,6 +1,6 @@
 <?php
 	include("index.html");
-	$expr = $_GET["iexpr"];
+	$expr = $_POST["iexpr"];
 	system("c++_impl.exe $expr");
 	echo "
 	<script type = \"text/javascript\">
