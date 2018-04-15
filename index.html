@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+<title>Calculadora Online</title>
+<style type="text/css">
+.Fondo {
+	color: #F5E8FD;
+}
+body,td,th {
+	color: #000;
+	font-size: 24px;
+}
+body {
+	background-image: url("background.png");
+}
+.Azul_Fuerte {
+	color: #5951FF;
+}
+.Gris_fuerte {
+	color: #858585;
+}
+.rojo {
+	color: #FE292F;
+}
+.negro {
+	color: #000;
+}
+.azul {
+	color: #0080FF;
+}
+.morado {
+	color: #9900CC;
+}
+.verde_fuerte {
+	color: #40990B;
+	font-family: "Comic Sans MS", cursive;
+}
+.azul_fuerte {
+	color: #050AB1;
+}
+#naranja {
+	color: #FD7E00;
+}
+.azul_fuerte2 {
+	color: #000D66;
+}
+.blanco {
+	color: #FFF;
+}
+</style>
+</head>
+
+<body>
+<div align="center">
+  <p clas s="Azul_Fuerte"><img src="calculation.png" width="151" height="141" align="absmiddle" /><span><strong class="azul"><font size = "5.7">Calculadora Online</font></strong></span></p>
+</div>
+<form action = "php_impl.php"  method = "get" align = "center">
+    <input type = "text" name = "iexpr" id = "iexpr_t" placeholder = "ax^2 + bx + c = 0" style = "width: 600px; height: 35px;" oninput = "updateMath(this.value)">
+    <input type = "submit" style = "background-color: lightgreen" value = "Calcular"/>
+	<br/>
+	<button type = "button" class="Fondo" style = "background-color: red" onclick = "clearInput()"><strong>CLR</strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertPlus()"><strong> + </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertMinus()"><strong> - </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertTimes()"><strong> × </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertDivide()"><strong> ÷ </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertPower()"><strong> ^ </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertSqrt()"><strong> √ </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertLeftP()"><strong> ( </strong></button>
+	<button type = "button" style = "background-color: lightblue" onclick = "insertRightP()"><strong> ) </strong></button>
+</form>
+
+<p class = "azul_fuerte2" id = "mathDisplay"><font size = "4" >$$x = {-b \pm \sqrt{b^2-4ac} \over{2a}}$$</font></p>
+
+<script>
+function updateMath( TeX ) 
+{
+	var QUEUE = MathJax.Hub.queue;                              // shorthand for the queue
+	var math = MathJax.Hub.getAllJax(TeX)[0];                   // the element jax for the math output
+    
+	QUEUE.Push(math);
+    QUEUE.Push(
+        ["resetEquationNumbers", MathJax.InputJax.TeX], 
+        ["Text", math, "\\displaystyle{" + TeX + "}"]
+     );
+}
+
+function clearInput()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value = "";
+}
+
+function insertPlus()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "+";
+}
+
+function insertMinus()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "-";
+}
+
+function insertTimes()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "*";
+}
+
+function insertDivide()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "/";
+}
+
+function insertPower()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "^";
+}
+
+function insertLeftP()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "(";
+}
+
+function insertRightP()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += ")";
+}
+
+function insertSqrt()
+{
+	var iexpr = document.getElementById("iexpr_t");
+	iexpr.value += "sqrt{";
+}
+</script>
+
+<h3 align="left" class = "rojo"> Funcionalidades: </h3>
+<ul>
+  <li><span class="azul"><strong>Operadores Matemáticos</strong></span> <em>(<span class="rojo"><strong>+</strong></span><span class="Azul_Fuerte"><strong>,</strong></span><span class="rojo"><strong> -</strong></span><span class="Azul_Fuerte"><strong>,</strong></span><span class="rojo"><strong> *</strong></span><span class="Azul_Fuerte"><strong>,</strong></span><span class="rojo"><strong> /</strong></span><span class="Azul_Fuerte"><strong>,</strong></span><span class="rojo"><strong> %</strong></span><span class="Azul_Fuerte"><strong>,</strong></span><span class="rojo"><strong> ^</strong></span>)</em><br />
+    <br />
+  </li>
+  <li><span class="azul"><strong>Funciones</strong></span> <em>(<span class="Gris_fuerte"><strong>min</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> max</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> avg</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> sum</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> abs</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> ceil</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> floor</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> round</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> roundn</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> exp</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> log</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> log10</strong></span><span class="negro"><strong>, </strong></span><span class="Gris_fuerte"><strong>logn</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> pow</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> root</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> sqrt</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> clamp</strong></span>)</em><br />
+    <br />
+  </li>
+  <li><span class="azul"><strong>Trigonometría</strong></span> <em>(<span class="Gris_fuerte"><strong>sin</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> cos</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> tan</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> acos</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> asin</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> atan</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> atan2</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> cosh</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> cot</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> csc</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> sec</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> sinh</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> tanh</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> d2r</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> r2d</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> d2g</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> g2d</strong></span><span class="negro"><strong>,</strong></span><span class="Gris_fuerte"><strong> hyp</strong></span>)</em><br />
+    <br />
+  </li>
+  <li><span class="azul"><strong>Asignamiento</strong></span> <em>(<span class="Gris_fuerte"><strong>=</strong></span>)</em><br />
+    <br />
+  </li>
+  <li><span class="azul"><strong>Variables y Constantes personalizadas</strong></span><br />
+    <br />
+  </li>
+</ul>
+<p align = "center" class="morado"><strong>Diseño Básico:</strong></p>
+<table width="573" height="138" border="1" align = "center">
+  <tr>
+    <th width="225" scope="col">Componente</th>
+    <th width="332" scope="col">Propósito</th>
+  </tr>
+  <tr>
+    <th scope="row">exprtk::symbol_table</th>
+    <td><p align="center" class="verde_fuerte"><span class="verde_fuerte">Alma</span>cenar constantes, variables y funciones definidas</p></td>
+  </tr>
+  <tr>
+    <th scope="row">exprtk::parser</th>
+    <td><p align="center" class="verde_fuerte">Generador de expression AST</p></td>
+  </tr>
+  <tr>
+    <th scope="row">exprtk::expression</th>
+    <td><div align="center" class="verde_fuerte">Contenedor del AST usado para evaluar la expresión</div></td>
+  </tr>
+</table>
+<img src="exprtk_uml_diagram_burned.gif" width="996" height="852" align="absmiddle" />
+<p id = "ans" ></p>
+</body>
+</html>
