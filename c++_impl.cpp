@@ -7,8 +7,8 @@
 using std::cout;
 using std::cin;
 //-----------------------------------------------------------------------------------------------------------------
-/***namespace numeric_constant***/
-namespace numeric_constant
+/***namespace numeric_constants***/
+namespace numeric_constants
 {
 	static constexpr double pi =  3.14159265358979323846264338327950288419716939937510;
 	static constexpr double e  =  2.71828182845904523536028747135266249775724709369996;
@@ -124,10 +124,10 @@ double function_impl(const double& args_val, int functionID)
         return 1/std::sin(args_val);
 
                 case -34:// rad2deg
-        return  args_val * (180/numeric_constant::pi);
+        return  args_val * (180/numeric_constants::pi);
 
                 case -35:// deg2rad
-        return args_val * (numeric_constant::pi/180);
+        return args_val * (numeric_constants::pi/180);
 
                 case -36:// deg2grad
         return args_val * 1.11112;
@@ -135,6 +135,7 @@ double function_impl(const double& args_val, int functionID)
                 case -37:// grad2deg
         return args_val * 0.9;
     }
+    return -0;
 }
 //-----------------------------------------------------------------------------------------------------------------
 /***class BST***/
@@ -146,14 +147,14 @@ private:
 	{
 		node(double val) : value(val)
 		{}
+		const double value;
 		std::unique_ptr<node> left{nullptr};
 		std::unique_ptr<node> right{nullptr};
-		const double value;
 	};
 	std::unique_ptr<node> root{nullptr};
-	using numeric_p = std::unique_ptr<node>;
+	using ptr_numeric = std::unique_ptr<node>;
 
-	void addNodePrivate(double ival, const numeric_p& n) & noexcept
+	void addNodeImpl(const double& ival, const ptr_numeric& n) & noexcept
 	{
 		if (root == nullptr)
 			root = std::make_unique<node>(ival);
@@ -161,7 +162,7 @@ private:
 		else if (ival < n->value)
 		{
 			if (n->left != nullptr)
-				addNodePrivate(ival, n->left);
+				addNodeImpl(ival, n->left);
 			else
 				n->left = std::make_unique<node>(ival);
 		}
@@ -169,24 +170,24 @@ private:
 		else if (ival > n->value)
 		{
 			if (n->right != nullptr)
-				addNodePrivate(ival, n->right);
+				addNodeImpl(ival, n->right);
 			else
 				n->right = std::make_unique<node>(ival);
 		}
 	}
 
-	double minValuePrivate(const numeric_p& n) const & noexcept
+	double minValueImpl(const ptr_numeric& n) const & noexcept
 	{
 		if (n->left != nullptr)
-			return minValuePrivate(n->left);
+			return minValueImpl(n->left);
 		else
 			return n->value;
 	}
 
-    double maxValuePrivate(const numeric_p& n) const & noexcept
+    double maxValueImpl(const ptr_numeric& n) const & noexcept
 	{
 		if (n->right != nullptr)
-				return maxValuePrivate(n->right);
+			return maxValueImpl(n->right);
 		else
 			return n-> value;
 	}
@@ -197,22 +198,22 @@ public:
 
 	double min() const & noexcept
 	{
-		return minValuePrivate(root);
+		return minValueImpl(root);
 	}
 
 	double max() const & noexcept
 	{
-		return maxValuePrivate(root);
+		return maxValueImpl(root);
 	};
 
 	void add(double ival) & noexcept
 	{
-		addNodePrivate(ival, root);
+		addNodeImpl(ival, root);
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
 /***struct tree_stack***/
-struct tree_stack
+struct tree_stack_t
 {
 private:
 	std::vector<BST> v;
@@ -249,14 +250,14 @@ public:
 };
 //-----------------------------------------------------------------------------------------------------------------
 /***struct arg_stack***/
-struct arg_stack
+struct arg_stack_t
 {
 private:
 	double NaN = 2.22507e-308;
 	std::vector<double> v;
 
 public:
-	arg_stack()
+	arg_stack_t()
 	{
 		v.emplace_back(NaN);
 	}
@@ -340,7 +341,7 @@ public:
 		if (v.size() > 1)
 			v.pop_back();
 
-		return result/count;
+		return result / count;
 	}
 
 	void clear()
@@ -360,18 +361,18 @@ public:
 struct function_node : public expression_node
 {
 private:
-using expr_p = std::unique_ptr<expression_node>;
+using ptr_expr = std::unique_ptr<expression_node>;
 
-	expr_p m_args{nullptr};
-	int m_ID;
+    int _ID;
+	ptr_expr _args{nullptr};
 
 public:
-	function_node(int ID, expr_p&& args) : m_ID(ID), m_args(std::move(args))
+	function_node(int ID, ptr_expr&& args) : _ID(ID), _args(std::move(args))
 	{}
 
 	double value() const & noexcept override
 	{
-		return function_impl(m_args->value(), m_ID);
+		return function_impl(_args->value(), _ID);
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
@@ -379,17 +380,17 @@ public:
 struct unary_neg_node : public expression_node
 {
 private:
-using expr_p = std::unique_ptr<expression_node>;
+using ptr_expr = std::unique_ptr<expression_node>;
 
-	expr_p m_arg{nullptr};
+	ptr_expr _arg{nullptr};
 
 public:
-	unary_neg_node(expr_p&& arg) : m_arg(std::move(arg))
+	unary_neg_node(ptr_expr&& arg) : _arg(std::move(arg))
 	{}
 
 	double value() const & noexcept override
 	{
-		return -1 * m_arg->value();
+		return -1 * _arg->value();
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
@@ -397,30 +398,31 @@ public:
 struct binary_node : public expression_node
 {
 private:
-using expr_p = std::unique_ptr<expression_node>;
+using ptr_expr = std::unique_ptr<expression_node>;
 
-	expr_p m_left{nullptr};
-	expr_p m_right{nullptr};
-	int m_op;
+    int _op;
+	ptr_expr _left{nullptr};
+	ptr_expr _right{nullptr};
 
 public:
-	binary_node(int op, expr_p&& l, expr_p&& r) : m_op(op), m_left(std::move(l)), m_right(std::move(r))
+	binary_node(int op, ptr_expr&& lhs, ptr_expr&& rhs) : _op(op), _left(std::move(lhs)), _right(std::move(rhs))
 	{}
 
 	double value() const & noexcept override
 	{
-	    switch(m_op)
+	    switch(_op)
 		{
-			case 43: return m_left->value() + m_right->value();
+			case 43: return _left->value() + _right->value();
 
-			case 45: return m_left->value() - m_right->value();
+			case 45: return _left->value() - _right->value();
 
-			case 42: return m_left->value() * m_right->value();
+			case 42: return _left->value() * _right->value();
 
-			case 47: return m_left->value() / m_right->value();
+			case 47: return _left->value() / _right->value();
 
-			case 94: return std::pow(m_left->value(), m_right->value());
+			case 94: return std::pow(_left->value(), _right->value());
 		}
+		return -0;
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
@@ -428,14 +430,14 @@ public:
 struct numeric_node : public expression_node
 {
 private:
-	double m_value{0.0};
+	double _value{0.0};
 
 public:
-	numeric_node(double value) : m_value(value) {}
+	numeric_node(double value) : _value(value) {}
 
 	double value() const & noexcept override
 	{
-		return m_value;
+		return _value;
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
@@ -461,46 +463,47 @@ struct token_t
 class expression
 {
 private:
-	std::string m_expr_str;
-	std::unique_ptr<expression_node> m_et{nullptr};
-	double m_result{2.22507e-308};
+	std::string _expr_str;
+	std::unique_ptr<expression_node> _et{nullptr};
+	double _result{2.22507e-308};
 
 public:
 	expression()
 	{}
 
-	expression(std::string iexpr_str) : m_expr_str(std::move(iexpr_str))
+	expression(std::string iexpr_str) : _expr_str(std::move(iexpr_str))
 	{}
 
 	double value()
 	{
-		if (m_et != nullptr && m_result == 2.22507e-308)
+		if (_et != nullptr && _result == 2.22507e-308)
 		{
-			m_result = m_et->value();
-			return m_result;
+			_result = _et->value();
+			return _result;
 		}
+		return -0;
 	}
 
 	void set_expression(std::string iexpr_str)
 	{
-		m_expr_str = std::move(iexpr_str);
+		_expr_str = std::move(iexpr_str);
 	}
 
 	bool ready()
 	{
-		return m_et != nullptr;
+		return _et != nullptr;
 	}
 
 	void clear()
 	{
-		m_et.reset(nullptr);
-		m_expr_str.clear();
-		m_result = 2.22507e-308;
+		_et.reset(nullptr);
+		_expr_str.clear();
+		_result = 2.22507e-308;
 	}
 
 	expression_node* release()
 	{
-		return m_et.release();
+		return _et.release();
 	}
 private:
 	friend class parser;
@@ -561,6 +564,7 @@ namespace details
 			case 123:// {
 				return 0;
 		}
+		return -0;
 	}
 
 	inline bool is_e(const char& c) noexcept{
@@ -610,7 +614,7 @@ namespace details
 		return c > 47 && c < 58;
 	}
 }
-
+//-----------------------------------------------------------------------------------------------------------------
 inline bool is_op(const char& c) noexcept
 {
 	return '*' == c
@@ -619,18 +623,18 @@ inline bool is_op(const char& c) noexcept
 }
 using namespace details;
 void toTeX(std::string& s)
-{	
+{
 	std::size_t pos;
 	int i = 0;
-	
+
 	while ((pos = s.find("+-")) != std::string::npos)
 		s.replace(pos, 2, "\\pm");
-	
+
 	// Modify sqrt
 	while ((pos = s.find("sqrt", i)) != std::string::npos)
 	{
 		s[i = pos+4] = '{';
-		std::size_t count = 1; 
+		std::size_t count = 1;
 		while (++i)
 		{
 			if (is_left_bracket(s[i]))
@@ -645,7 +649,7 @@ void toTeX(std::string& s)
 		}
 		s.insert(pos, "\\");
 	}
-	
+
 	// Modify Divisions
 	while ((pos = s.find("/")) != std::string::npos)
 	{
@@ -690,7 +694,7 @@ void toTeX(std::string& s)
 				}
 			}
 		}
-		
+
 		// Check for right expr between ()
 		i = pos;
 		if (is_left_bracket(s[i+1]))
@@ -712,12 +716,12 @@ void toTeX(std::string& s)
 				{
 					s[i] = '}'; break;
 				}
-				
+
 				else if (is_op(s[i]) || i == s.length())
 				{
-					s.insert(i, "}"); 
+					s.insert(i, "}");
 					if (i < s.length()-1)
-						++pos; 
+						++pos;
 					break;
 				}
 			}
@@ -725,7 +729,6 @@ void toTeX(std::string& s)
 		s.replace(pos, 1, "\\over");
 	}
 }
-
 //-----------------------------------------------------------------------------------------------------------------
 /***namespace generator***/
 namespace generator
@@ -740,19 +743,19 @@ namespace generator
 
 		while(c != end)
 		{
-			while (*c == ' ')
+			while (' ' == *c)
 			++c;
 
 			if (details::is_sign(*c))								                     // Sign
 			{
 				if (details::is_operator(*(c-1)) || details::is_left_bracket(*(c-1)))    // Unary Sign
 				{
-					if (*c == '-')
+					if ('-' == *c)
 						tokens->emplace_back(117);// 'u'                                 // Unary Minus
 					++c;															     // Skip Unary Plus
 				}
 				else																	 // Binary Sign
-				{					
+				{
 					tokens->emplace_back(static_cast<int>(*c));
 					++c;
 				}
@@ -831,7 +834,7 @@ namespace generator
 					{
 						if (details::function_list[i] == s)
 						{
-							tokens->emplace_back(i * -1, s); 
+							tokens->emplace_back(i * -1, s);
 							is_function = true; break;
 						}
 					}
@@ -871,7 +874,7 @@ namespace generator
 				continue;
 			}
 
-			else																	 	 // Space?
+			else
 				++c;
 		}
 	}
@@ -903,19 +906,19 @@ public:
 			var_store.emplace(name, value);
 	}
 
-	bool replace_symbol_name(const std::string& old_name, const std::string& new_name)
+	bool replace_symbol_name(const std::string& old_name, const std::string& new_name) &
 	{
 	    m_s_d_cit it = var_store.find(old_name);
 		if (it != var_store.cend())
 		{
-			var_store.emplace(new_name, it->second);
 			var_store.erase(it);
+			var_store.emplace(new_name, it->second);
 			return true;
 		}
 		return false;
 	}
 
-	bool replace_symbol_value(const std::string& isymbol_name, double new_value)
+	bool replace_symbol_value(const std::string& isymbol_name, double new_value) &
 	{
 	    m_s_d_it it = var_store.find(isymbol_name);
 		if (it != var_store.cend())
@@ -926,7 +929,7 @@ public:
 		return false;
 	}
 
-	bool delete_symbol(const std::string& old_symbol)
+	bool delete_symbol(const std::string& old_symbol) &
 	{
 	    m_s_d_cit it = var_store.find(old_symbol);
 		if (it != var_store.cend())
@@ -934,39 +937,29 @@ public:
 			var_store.erase(it);
 			return true;
 		}
-		else
-			return false;
+		return false;
 	}
 
-	void enable_constants()
+	void enable_constants() & noexcept
 	{
 		using_constants = true;
 	}
 
-	void disable_constants()
+	void disable_constants() & noexcept
 	{
 		using_constants = false;
 	}
 
-	bool constants_enabled()
+	bool constants_enabled() const & noexcept
 	{
 		return using_constants;
 	}
 
-	double value_of(const std::string& iname) const & noexcept
+	double operator[](const std::string& name) const &
 	{
-		if (using_constants)
-		{
-			if (details::icmp(iname, "pi")) return numeric_constant::pi;
-			if (details::icmp(iname,  "e")) return numeric_constant::e;
-		}
-
-		m_s_d_cit it = var_store.find(iname);
-		if (it != var_store.cend())
-			return it->second;
-
-		return 2.22507e-308;
+		return var_store.at(name);
 	}
+
 private:
 friend class parser;
 };
@@ -975,147 +968,149 @@ friend class parser;
 class parser
 {
 private:
-	using expr_p = std::unique_ptr<expression_node>;
-	using binary_p = std::unique_ptr<binary_node>;
-	using unary_p = std::unique_ptr<unary_neg_node>;
-	using numeric_p = std::unique_ptr<numeric_node>;
-	using function_p = std::unique_ptr<function_node>;
+	using ptr_expr = std::unique_ptr<expression_node>;
+	using ptr_binary = std::unique_ptr<binary_node>;
+	using ptr_unary = std::unique_ptr<unary_neg_node>;
+	using ptr_numeric = std::unique_ptr<numeric_node>;
+	using ptr_function = std::unique_ptr<function_node>;
 
 
-	std::vector<symbol_table> m_symbol_table_list;// Symbol Table List
+	std::vector<symbol_table> _symbol_table_list; // Symbol Table List
 	symbol_table* c_symbol_table{nullptr};        // Current Symbol Table
 
 
-	std::vector<token_t> m_token_list;            // Token_t List
-	std::vector<expr_p> m_output;                 // Holder of AST
-	std::vector<int> m_operators;				  // Operators
-	std::vector<int> m_function_list;	          // Function List
-	arg_stack arg_list;	                          // Args Holder
-	tree_stack tree_list;				          // Min && Max
+	std::vector<token_t> _token_list;             // Token_t List
+	std::vector<ptr_expr> _output;                // Holder of AST
+	std::vector<int> _operators;				  // Operators
+	std::vector<int> _function_list;	          // Function List
+	arg_stack_t _arg_stack;	                      // Args Holder
+	tree_stack_t _tree_list;				      // Min && Max
 
 
-    bool insideFunction = false;                  // Helpers
-	std::size_t count{0};
+    bool _function_opening = false;               // Helpers
+	std::vector<int> _counter;
 
 private:
 	void clean_up() noexcept
 	{
-		insideFunction = false;
-		count = 0;
+		_function_opening = false;
 
-		if (!m_symbol_table_list.size())
+		if (!_symbol_table_list.size())
 			c_symbol_table = nullptr;
 		else
-			c_symbol_table = &(m_symbol_table_list.back());
+			c_symbol_table = &(_symbol_table_list.back());
 
-		m_output.clear();
-		m_operators.clear();
-		m_function_list.clear();
-		m_token_list.clear();
-		arg_list.clear();
-		tree_list.clear();
+		_output.clear();
+		_operators.clear();
+		_function_list.clear();
+		_token_list.clear();
+		_arg_stack.clear();
+		_tree_list.clear();
 	}
 
 	void make_unary()
 	{
-		expr_p arg = std::move(m_output.back());  m_output.pop_back();
+		ptr_expr arg = std::move(_output.back());  _output.pop_back();
 
-		unary_p p = std::make_unique<unary_neg_node>(std::move(arg));
+		ptr_unary p = std::make_unique<unary_neg_node>(std::move(arg));
 
-		m_output.push_back(std::move(p));
+		_output.push_back(std::move(p));
 	}
 
 	void make_binary()
 	{
-		expr_p rhs = std::move(m_output.back());  m_output.pop_back();
-		expr_p lhs = std::move(m_output.back());   m_output.pop_back();
+		ptr_expr rhs = std::move(_output.back());  _output.pop_back();
+		ptr_expr lhs = std::move(_output.back());   _output.pop_back();
 
-		binary_p p = std::make_unique<binary_node>(m_operators.back(), std::move(lhs), std::move(rhs));
+		ptr_binary p = std::make_unique<binary_node>(_operators.back(), std::move(lhs), std::move(rhs));
 
-		m_output.push_back(std::move(p));
+		_output.push_back(std::move(p));
 	}
 
     void process_operator(int op)
 	{
 		int opPrecedence = details::precedenceOf(op);
-		while (m_operators.size() &&
-			   details::precedenceOf(m_operators.back()) >=
+		while (_operators.size() &&
+			   details::precedenceOf(_operators.back()) >=
 			   opPrecedence
 			   )
 		{
-			if ('u' == m_operators.back())
+			if ('u' == _operators.back())
 				make_unary();
 			else
 				make_binary();
 
-			m_operators.pop_back();
+			_operators.pop_back();
 		}
-		m_operators.emplace_back(op);
+		_operators.emplace_back(op);
     }
 
     void process_left_bracket()
     {
-    	m_operators.emplace_back('(');
+		_operators.push_back('(');
 
-		if (insideFunction)
-			++count;
+		if (_function_opening)
+		{
+			_counter.push_back(1);
+			_function_opening = false;
+		}
+		else
+			_counter.push_back(0);
     }
 
 	void process_right_bracket()
 	{
-		 while (m_operators.back() != '(')
+		 while (_operators.back() != '(')
 		 {
-			if ('u' == m_operators.back())
+			if ('u' == _operators.back())
 				make_unary();
 			else
 				make_binary();
 
-			m_operators.pop_back();
+			_operators.pop_back();
 		 }
-		 m_operators.pop_back();
+		 _operators.pop_back();                                      // Pop '('
 
-		 if (insideFunction && !--count)
+		 if (!_counter.back()-1)                                     // End of function
 		 {
-			if (m_function_list.back() > -38)		    // Unary
+			if (_function_list.back() > -38)		    			 // Unary
 			{
-				function_p p = std::make_unique<function_node>
-				(m_function_list.back(), std::move(m_output.back()));
+				ptr_function p = std::make_unique<function_node>
+				(_function_list.back(), std::move(_output.back()));
 
-				m_output.pop_back();
-				m_output.push_back(std::move(p));
+				_output.pop_back();
+				_output.push_back(std::move(p));
 			}
 			else
-				var_args_impl();					// Binary/Variadic
+				var_args_impl();									 // Binary / Variadic
 
-			m_function_list.pop_back();
-
-			if (!m_function_list.size())
-				insideFunction = false;
+			_function_list.pop_back();
 		 }
+		 _counter.pop_back();
 	}
 
 	void var_args_impl()
 	{
-		numeric_p p;
+		ptr_numeric p;
 
-		if (m_function_list.back() < -46)
+		if (_function_list.back() < -46)                             // Min & Max
 		{
-			tree_list.add_value((m_output.back())->value());
-			m_output.pop_back();
+			_tree_list.add_value((_output.back())->value());
+			_output.pop_back();
 
-		    p = (m_function_list.back() == -47) ?
-			std::make_unique<numeric_node>(tree_list.pop_max())  :
-			std::make_unique<numeric_node>(tree_list.pop_min());
+		    p = (_function_list.back() == -47) ?
+			std::make_unique<numeric_node>(_tree_list.pop_max())  :
+			std::make_unique<numeric_node>(_tree_list.pop_min());
 		}
-		else if (m_function_list.back() > -42)
+		else if (_function_list.back() > -42)                        // Binaries
 		{
-			double y = (m_output.back())->value();
-			m_output.pop_back();
+			double y = (_output.back())->value();
+			_output.pop_back();
 
-			double x = (m_output.back())->value();
-			m_output.pop_back();
+			double x = (_output.back())->value();
+			_output.pop_back();
 
-			switch (m_function_list.back())
+			switch (_function_list.back())
 			{
 				case -38:// Pow
 				p = std::make_unique<numeric_node>(std::pow(x, y));
@@ -1133,39 +1128,39 @@ private:
 				p = std::make_unique<numeric_node>(std::pow(x, 1/y));
 			}
 		}
-		else
+		else                                                      // Variadics
 		{
-			arg_list.add_value((m_output.back())->value());
-			m_output.pop_back();
+			_arg_stack.add_value((_output.back())->value());
+			_output.pop_back();
 
-			switch (m_function_list.back())
+			switch (_function_list.back())
 			{
 								case -46:// Avg
-				p = std::make_unique<numeric_node>(arg_list.pop_avg());
+				p = std::make_unique<numeric_node>(_arg_stack.pop_avg());
 				break;
 
 								case -45:// Div
-				p = std::make_unique<numeric_node>(arg_list.pop_div());
+				p = std::make_unique<numeric_node>(_arg_stack.pop_div());
 				break;
 
 								case -44:// Mul
-				p = std::make_unique<numeric_node>(arg_list.pop_mul());
+				p = std::make_unique<numeric_node>(_arg_stack.pop_mul());
 				break;
 
 								case -43:// Rest
-				p = std::make_unique<numeric_node>(arg_list.pop_rest());
+				p = std::make_unique<numeric_node>(_arg_stack.pop_rest());
 				break;
 
 								case -42:// Sum
-				p = std::make_unique<numeric_node>(arg_list.pop_sum());
+				p = std::make_unique<numeric_node>(_arg_stack.pop_sum());
 			}
 		}
- 		m_output.push_back(std::move(p));
+ 		_output.push_back(std::move(p));
 	}
 
 	void process_numeric(const std::string& s) noexcept
 	{
-		m_output.push_back(std::make_unique<numeric_node>(std::stod(s)));
+		_output.push_back(std::make_unique<numeric_node>(std::stod(s)));
 	}
 
 	void process_symbol(std::string& s) noexcept
@@ -1176,37 +1171,37 @@ private:
 			cout << s << " = ";
 			cin >> n;
 			c_symbol_table->add_variable(s, n);
-			m_output.push_back(std::make_unique<numeric_node>(n));
+			_output.push_back(std::make_unique<numeric_node>(n));
 		}
 		else
-		m_output.push_back(std::make_unique<numeric_node>(c_symbol_table->value_of(s)));
+		_output.push_back(std::make_unique<numeric_node>(c_symbol_table->operator[](s)));
 	}
 
 	void process_comma()
 	{
-		while (m_operators.back() != '(')
+		while (_operators.back() != '(')
 		{
-			if ('u' == m_operators.back())
+			if ('u' == _operators.back())
 				make_unary();
 			else
 				make_binary();
 
-			m_operators.pop_back();
+			_operators.pop_back();
 		}
 
-		if (m_function_list.back() < -41)
+		if (_function_list.back() < -41)
 		{
-			switch (m_function_list.back())
+			switch (_function_list.back())
 			{
 				case -48:
 				case -47:
-						tree_list.add_value((m_output.back())->value());
-						m_output.pop_back();
+						_tree_list.add_value((_output.back())->value());
+						_output.pop_back();
 						break;
 
 				default:
-						arg_list.add_value((m_output.back())->value());
-						m_output.pop_back();
+						_arg_stack.add_value((_output.back())->value());
+						_output.pop_back();
 			}
 		}
 	}
@@ -1220,20 +1215,19 @@ private:
 			case -44:		// Mul
 			case -45:		// Div
 			case -46:		// Avg
-					arg_list.add_list();
+					_arg_stack.add_list();
 					break;
 			case -47:		// Max
 			case -48:		// Min
-					tree_list.add_tree();
+					_tree_list.add_tree();
 		}
-		m_function_list.push_back(functionID);
-		insideFunction = true;
-		count = 0;
+		_function_list.push_back(functionID);
+		_function_opening = true;
 	}
 
     binary_node* parse()
 	{
-		for (token_t& token : m_token_list)
+		for (token_t& token : _token_list)
 		{
 			switch (token.ID)
 			{
@@ -1270,38 +1264,38 @@ private:
 						process_function(token.ID);
 			}
 		}
-		while (m_operators.size())
+		while (_operators.size())
 		{
-			if ('u' == m_operators.back())
+			if ('u' == _operators.back())
 				make_unary();
 			else
 				make_binary();
 
-			m_operators.pop_back();
+			_operators.pop_back();
 		}
-		assert (m_output.size() == 1);
+		assert (_output.size() == 1);
 
-		binary_node* p = dynamic_cast<binary_node*>((m_output.back()).release());
+		binary_node* p = dynamic_cast<binary_node*>((_output.back()).release());
 
 		return p;
 	}
 
 	void process_expression(expression& iexpr_t)
 	{
-		iexpr_t.m_et.reset(parse());
+		iexpr_t._et.reset(parse());
 	}
 
 	bool is_assignment()
 	{
-		return '=' == m_token_list[3].ID;
+		return '=' == _token_list[3].ID;
 	}
 
 	void process_assignment()
 	{
-		std::string isymbol = std::move(m_token_list[2].data);
+		std::string isymbol = std::move(_token_list[2].data);
 
-		m_token_list[2] = token_t(78, "0");
-		m_token_list[3].ID = 43;
+		_token_list[2] = token_t(78, "0");
+		_token_list[3].ID = 43;
 
 		if (!c_symbol_table->symbol_exist(isymbol))
 		    c_symbol_table->add_variable(isymbol, parse()->value());
@@ -1313,12 +1307,12 @@ private:
 public:
 	void register_symbol_table(symbol_table& i_symtab) &
 	{
-		m_symbol_table_list.push_back(i_symtab);
+		_symbol_table_list.push_back(i_symtab);
 	}
 
 	void remove_symbol_tables() & noexcept
 	{
-		 m_symbol_table_list.clear();
+		 _symbol_table_list.clear();
 	}
 
 	bool compile(expression& iexpr_t, const std::string& iexpr_str) &
@@ -1326,7 +1320,7 @@ public:
 		if (!iexpr_str.length() || is_assignment())
 			return false;
 
-		generator::tokenize(iexpr_str, &m_token_list);
+		generator::tokenize(iexpr_str, &_token_list);
 	    process_expression(iexpr_t);
 
 		clean_up();
@@ -1340,47 +1334,47 @@ public:
 			return false;
 
 		c_symbol_table = &itemp_symtab;
-		generator::tokenize(iexpr_str, &m_token_list);
+		generator::tokenize(iexpr_str, &_token_list);
 
 		if (is_assignment())
 	        process_assignment();
 		else
 		{
 	        process_expression(iexpr_t);
-			
+
 			toTeX(iexpr_str);
-			cout.precision(100);
-			
+			cout.precision(50);
+
 			cout << "<hr color = \"red\" size = \"15\"/>";
 			cout << "<h2 class = \"rojo\" align = \"center\"><ins> Resultado: </ins></h2>";
 		    cout << "<p class = \"azul_fuerte\" align = \"center\"><font size = \"4\">$$" << iexpr_str << " = " << iexpr_t.value() << "$$</font></p>";
 			cout << "<hr color = \"red\" size = \"15\"/>";
 			cout << "<h2 class = \"rojo\" align = \"center\"><ins> TOKENS: </ins></h2>";
-			for (std::size_t i = 2, size = m_token_list.size(); i < size; ++i)
+			for (std::size_t i = 2, size = _token_list.size(); i < size; ++i)
 			{
-				switch (m_token_list.at(i).ID)
+				switch (_token_list.at(i).ID)
 				{
 					case 78:
-						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Número</strong></span> <span align = \"center\">::= <strong>" << m_token_list.at(i).data << "</strong></span></p>";
+						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Número</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
 					break;
-					
+
 					case 83:
-						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Símbolo</strong></span> <span align = \"center\">::= <strong>" << m_token_list.at(i).data << "</strong></span></p>";
-					break;	
-					
+						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Símbolo</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
+					break;
+
 					case 'u':
-						cout << "<p/ align = \"center\" class = \"rojo\"><strong>\'-\' Unario</strong></p>";
-					break;		
-					
+						cout << "<p/ align = \"center\" class = \"rojo\"><strong class = \"rojo\">\'-\' Unario</strong></p>";
+					break;
+
 					default:
-						if (m_token_list.at(i).ID > 0)
-							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Operador</strong></span> <span align = \"center\">::= <strong>" << (char)m_token_list.at(i).ID << "</strong></span></p>";
+						if (_token_list.at(i).ID > 0)
+							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Operador</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << (char)_token_list.at(i).ID << "</strong></span></p>";
 						else
-							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Función</strong></span> <span align = \"center\">::= <strong>" << m_token_list.at(i).data << "</strong></span></p>";
+							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Función</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
 				}
 			}
 		}
-			
+
 		clean_up();
 
 		return true;
@@ -1388,10 +1382,10 @@ public:
 
 	bool compile(expression& iexpr_t) &
 	{
-		if (!iexpr_t.m_expr_str.length() || is_assignment())
+		if (!iexpr_t._expr_str.length() || is_assignment())
 			return false;
 
-		generator::tokenize(iexpr_t.m_expr_str, &m_token_list);
+		generator::tokenize(iexpr_t._expr_str, &_token_list);
 	    process_expression(iexpr_t);
 
 		clean_up();
@@ -1401,11 +1395,11 @@ public:
 
 	bool compile(expression& iexpr_t, symbol_table& itemp_symtab) &
 	{
-		if (!iexpr_t.m_expr_str.length())
+		if (!iexpr_t._expr_str.length())
 			return false;
 
 		c_symbol_table = &itemp_symtab;
-		generator::tokenize(iexpr_t.m_expr_str, &m_token_list);
+		generator::tokenize(iexpr_t._expr_str, &_token_list);
 
 		if (is_assignment())
 	        process_assignment();
