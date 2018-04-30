@@ -53,29 +53,45 @@ body {
 .blanco {
 	color: #FFF;
 }
+.azul font {
+	font-family: "Comic Sans MS", cursive;
+}
 </style>
 </head>
 
 <body>
 <div align="center">
-  <p clas s="Azul_Fuerte"><img src="calculation.png" width="151" height="141" align="absmiddle" /><span><strong class="azul"><font size = "5.7">Calculadora Online</font></strong></span></p>
+	<p clas s="Azul_Fuerte"><img src="calculation.png" width="151" height="141" align="absmiddle" /><span><strong class="azul"><font size = "7">Calculadora Online</font></strong></span></p>
 </div>
-<form action = "php_impl.php"  method = "POST" align = "center">
-    <input type = "text" name = "iexpr" id = "iexpr_t" placeholder = "ax^2 + bx + c = 0" style = "width: 600px; height: 35px;" oninput = "updateMath(this.value)">
-    <input type = "submit" style = "background-color: lightgreen" value = "Calcular"/>
-	<br/>
-	<button type = "button" class="Fondo" style = "background-color: red" onclick = "clearInput()"><strong>CLR</strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertPlus()"><strong> + </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertMinus()"><strong> - </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertTimes()"><strong> × </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertDivide()"><strong> ÷ </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertPower()"><strong> ^ </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertSqrt()"><strong> √ </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertLeftP()"><strong> ( </strong></button>
-	<button type = "button" style = "background-color: lightblue" onclick = "insertRightP()"><strong> ) </strong></button>
+
+<form action = "set_expr_mode.php"  method = "POST" align = "center">
+    <input type = "text" style = "width: 600px; height: 35px;" id = "_iexpr" name = "iexpr" autofocus placeholder = "ax^2 + bx + c = 0" oninput = "updateMath(this.value)"/>
+	<input type = "hidden" id = "_itrig_mode" name = "itrig_mode" value = "r"/>	
+	
+	<input type = "submit" style = "background-color: lightgreen; width: 60px; height: 41px; color: violet; font-size: 28px" value = "="/>
 </form>
 
-<p class = "azul_fuerte2" id = "mathDisplay"><font size = "4" >$$x = {-b \pm \sqrt{b^2-4ac} \over{2a}}$$</font></p>
+<form action = "var_impl.php" method = "POST">
+	<input type = "hidden" id = "_ivar_values" name = "ivar_values"/>
+	
+	<input type = "submit" id = "_submit_var_values" hidden/>
+</form>
+
+<p align = "center">
+	<button type = "button" style = "background-color: red;" class = "Fondo" onclick = "clearInput()"><strong>CLR</strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertPlus()"><strong> + </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertMinus()"><strong> - </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertTimes()"><strong> × </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertDivide()"><strong> ÷ </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertPower()"><strong> ^ </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertSqrt()"><strong> √ </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertLeftP()"><strong> ( </strong></button>
+	<button type = "button" style = "background-color: lightblue;" onclick = "insertRightP()"><strong> ) </strong></button>
+	<input  type = "radio" id = "_r" checked name = "radio" onclick = "set_trig_mode('r')"/>Radianes
+	<input  type = "radio" id = "_d" name = "radio" onclick = "set_trig_mode('d')"/>Grados
+</p>
+	
+<p 	class = "azul_fuerte2" id = "mathDisplay"><font size = "4" >$$x = {-b \pm \sqrt{b^2-4ac} \over{2a}}$$</font></p>
 
 <script>
 function updateMath( TeX ) 
@@ -90,57 +106,62 @@ function updateMath( TeX )
      );
 }
 
+function set_trig_mode( itrig_mode )
+{
+	(document.getElementById("_itrig_mode")).value = itrig_mode;
+}
+
 function clearInput()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value = "";
 }
 
 function insertPlus()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "+";
 }
 
 function insertMinus()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "-";
 }
 
 function insertTimes()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "*";
 }
 
 function insertDivide()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "/";
 }
 
 function insertPower()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "^";
 }
 
 function insertLeftP()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "(";
 }
 
 function insertRightP()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += ")";
 }
 
 function insertSqrt()
 {
-	var iexpr = document.getElementById("iexpr_t");
+	var iexpr = document.getElementById("_iexpr");
 	iexpr.value += "sqrt{";
 }
 </script>
@@ -171,11 +192,11 @@ function insertSqrt()
   </tr>
   <tr>
     <th scope="row">exprtk::symbol_table</th>
-    <td><p align="center" class="verde_fuerte"><span class="verde_fuerte">Alma</span>cenar constantes, variables y funciones definidas</p></td>
+    <td><p align="center" class="verde_fuerte"><span class="verde_fuerte">Almacenar constantes, variables y funciones definidas</p></td>
   </tr>
   <tr>
     <th scope="row">exprtk::parser</th>
-    <td><p align="center" class="verde_fuerte">Generador de expression AST</p></td>
+    <td><p align="center" class="verde_fuerte">Generador de expressión AST</p></td>
   </tr>
   <tr>
     <th scope="row">exprtk::expression</th>
@@ -183,7 +204,10 @@ function insertSqrt()
   </tr>
 </table>
 <img src="exprtk_uml_diagram_burned.gif" width="996" height="852" align="absmiddle" />
-<p id = "ans" ><em><a href="prueba1.htm">Accceso a prueba1</a></em></p>
-<p ><em><a href="prueba2.htm">Acceso a prueba2</a></em></p>
+<p align = "center" id = "ans" ><em><a target = "blank" href = "https://es.wikipedia.org/wiki/Algoritmo_shunting_yard">Algoritmo Shunting Yard</a></em></p>
+<p align = "center" ><em><a target = "blank"  href = "https://es.wikipedia.org/wiki/%C3%81rbol_de_sintaxis_abstracta">Árbol de Sintaxis Abstracta</a></em></p>
+<p align = "center" ><em><a target = "blank"  href = "http://www.partow.net/programming/exprtk/index.html">C++ Exprtk</a></em></p>
+
+<div style = "background-color: gold;"><p align = "center"><span style = "color: black; font-size: 13px;"><strong>©</strong></span><span style = "color: blue; font-size: 13px;"><strong>LEONARDO CABRERA </strong></span><span style = "font-size: 13px;"><strong>2018 — ALL RIGHTS RESERVED.</strong></span></p></div>
 </body>
 </html>
