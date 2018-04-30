@@ -4,14 +4,23 @@
 #include<vector>
 #include<map>
 #include<memory>
+#include<fstream>
 using std::cout;
 using std::cin;
+
+char _trig_mode{'d'};
+void set_trig_mode(const char c)
+{
+	assert(c == 'd' || c == 'r');
+	::_trig_mode = c;
+}
+
 //-----------------------------------------------------------------------------------------------------------------
 /***namespace numeric_constants***/
 namespace numeric_constants
 {
-	static constexpr double pi =  3.14159265358979323846264338327950288419716939937510;
-	static constexpr double e  =  2.71828182845904523536028747135266249775724709369996;
+	static constexpr double pi =  3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+	static constexpr double e  =  2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274;
 }
 //-----------------------------------------------------------------------------------------------------------------
 /***function_impl***/
@@ -19,115 +28,115 @@ double function_impl(const double& args_val, int functionID)
 {
 	switch (functionID)
     {
-                /*case 0://frac
+                /*case  0://frac
         return std::frac(args_val);*/
 
-                /*case -1:// ncdf
+                /*case  -1:// ncdf
         return std::ncdf(args_val);*/
 
-                case -2:// erfc
+                case  -2:// erfc
         return std::erfc(args_val);
 
-                case -3:// erf
+                case  -3:// erf
         return std::erf(args_val);
 
-                case -4:// sgn
+                case  -4:// sgn
 				if (args_val > 0) return +1;
                 else if (args_val < 0) return -1;
                 else               return 0;
 
-                case -5:// abs
+                case  -5:// abs
         return std::abs(args_val);
 
-                case -6:// acos
-        return std::acos(args_val);
+                case  -6:// acos
+        return ('d' == ::_trig_mode) ? std::acos(args_val  * numeric_constants::pi / 180) : std::acos (args_val);
 
-                case -7:// acosh
-        return std::acosh(args_val);
+                case  -7:// acosh
+        return ('d' == ::_trig_mode) ? std::acosh(args_val * numeric_constants::pi / 180) : std::acosh(args_val);
 
-                case -8:// asin
-        return std::asin(args_val);
+                case  -8:// asin
+        return ('d' == ::_trig_mode) ? std::asin(args_val  * numeric_constants::pi / 180) : std::asin (args_val);
 
-                case -9:// asinh
-        return std::asinh(args_val);
+                case  -9:// asinh
+        return ('d' == ::_trig_mode) ? std::asinh(args_val * numeric_constants::pi / 180) : std::asinh(args_val);
 
                 case -10:// atan
-        return std::atan(args_val);
+        return ('d' == ::_trig_mode) ? std::atan(args_val  * numeric_constants::pi / 180) : std::atan (args_val);
 
                 case -11:// atanh
-        return std::atanh(args_val);
+        return ('d' == ::_trig_mode) ? std::atanh(args_val * numeric_constants::pi / 180) : std::atanh(args_val);
 
                 case -12:// ceil
         return std::ceil(args_val);
 
                 case -13:// cos
-        return std::cos(args_val);
+        return ('d' == ::_trig_mode) ? std::cos    (args_val * numeric_constants::pi / 180) : std::cos   (args_val);
 
                 case -14:// cosh
-        return std::cosh(args_val);
+        return ('d' == ::_trig_mode) ? std::cosh   (args_val * numeric_constants::pi / 180) : std::cosh   (args_val);
 
-                case -15:// exp
-        return std::exp(args_val);
+                case -15:// sin
+        return ('d' == ::_trig_mode) ? std::sin    (args_val * numeric_constants::pi / 180) : std::sin    (args_val);
 
-                case -16:// expm1
-        return std::expm1(args_val);
+                case -16:// sinc
+        return ('d' == ::_trig_mode) ? std::sin    (args_val * numeric_constants::pi / 180) / args_val : std::sin(args_val) / args_val;
 
-                case -17://floor
-        return std::floor(args_val);
+                case -17:// sinh
+        return ('d' == ::_trig_mode) ? std::sinh   (args_val * numeric_constants::pi / 180) : std::sinh   (args_val);
 
-                case -18:// log
-        return std::log(args_val);
+                case -18:// tan
+        return ('d' == ::_trig_mode) ? std::tan    (args_val * numeric_constants::pi / 180) : std::tan    (args_val);
 
-                case -19:// log10
-        return std::log10(args_val);
+                case -19:// tanh
+        return ('d' == ::_trig_mode) ? std::tanh   (args_val * numeric_constants::pi / 180) : std::tanh   (args_val);
 
-                case -20:// log2
-        return std::log2(args_val);
+                case -20:// cot
+        return ('d' == ::_trig_mode) ? 1 / std::tan(args_val * numeric_constants::pi / 180) : 1 / std::tan(args_val);
 
-                case -21:// log1p
-        return std::log1p(args_val);
+                case -21:// sec
+        return ('d' == ::_trig_mode) ? 1 / std::cos(args_val * numeric_constants::pi / 180) : 1 / std::cos(args_val);
 
-                /*case -22:// logn
-        return std::logn(args_val);*/
+                case -22:// csc
+        return ('d' == ::_trig_mode) ? 1 / std::sin(args_val * numeric_constants::pi / 180) : 1 / std::sin(args_val);
 
                 case -23:// round
         return std::round(args_val);
 
-                case -24:// sin
-                return std::sin(args_val);
+                case -24:// exp
+        return std::exp(args_val);
 
-                case -25:// sinc
-        return std::sin(args_val) / args_val;
+                case -25:// expm1
+        return std::expm1(args_val);
 
-                case -26:// sinh
-        return std::sinh(args_val);
+                case -26:// floor
+        return std::floor(args_val);
 
                 case -27:// sqrt
         return std::sqrt(args_val);
 
-                case -28:// tan
-        return std::tan(args_val);
+                case -28:// log
+        return std::log(args_val);
 
-                case -29:// tanh
-        return std::tanh(args_val);
+                case -29:// log10
+        return std::log10(args_val);
 
                 case -30:// trunc
         return std::trunc(args_val);
 
-                case -31:// cot
-        return 1/std::tan(args_val);
+                case -31:// log2
+        return std::log2(args_val);
 
-                case -32:// sec
-        return 1/std::cos(args_val);
-
-                case -33:// csc
-        return 1/std::sin(args_val);
+                case -32:// log1p
+        return std::log1p(args_val);
+		
+                /*case -33:// logn
+        return std::logn(args_val);*/
 
                 case -34:// rad2deg
-        return  args_val * (180/numeric_constants::pi);
+        return  args_val * (180 / numeric_constants::pi);
 
                 case -35:// deg2rad
-        return args_val * (numeric_constants::pi/180);
+        return args_val * (numeric_constants::pi / 180);
 
                 case -36:// deg2grad
         return args_val * 1.11112;
@@ -364,15 +373,15 @@ private:
 using ptr_expr = std::unique_ptr<expression_node>;
 
     int _ID;
-	ptr_expr _args{nullptr};
+	ptr_expr _arg{nullptr};
 
 public:
-	function_node(int ID, ptr_expr&& args) : _ID(ID), _args(std::move(args))
+	function_node(int ID, ptr_expr&& arg) : _ID(ID), _arg(std::move(arg))
 	{}
 
 	double value() const & noexcept override
 	{
-		return function_impl(_args->value(), _ID);
+		return function_impl(_arg->value(), _ID);
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
@@ -419,6 +428,8 @@ public:
 			case 42: return _left->value() * _right->value();
 
 			case 47: return _left->value() / _right->value();
+			
+			case 37: return int(_left->value()) % int(_right->value());
 
 			case 94: return std::pow(_left->value(), _right->value());
 		}
@@ -527,14 +538,14 @@ namespace details
 	static const std::string function_list[49] =
 	{
 		"frac"         , "ncdf"         , "erfc"         , "erf"          ,
-		"sgn"          , "abs"          , "acos"         ,"acosh"         ,
+		"sgn"          , "abs"          , "acos"         , "acosh"        ,
 		"asin"         , "asinh"        , "atan"         , "atanh"        ,
-		"ceil"         , "cos"          , "cosh"         , "exp"          ,
-		"expm1"        , "floor"        , "log"          , "log10"        ,
-		"log2"         , "log1p"        , "logn"         , "round"        ,
-		"sin"          , "sinc"         , "sinh"         , "sqrt"         ,
-		"tan"          , "tanh"         , "trunc"        , "cot"          ,
-		"sec"          , "csc"          , "rad2deg"      , "deg2rad"      ,
+		"ceil"         , "cos"          , "cosh"         , "sin"          ,
+		"sinc"         , "sinh"         , "tan"          , "tanh"         ,
+		"cot"          , "sec"          , "csc"          , "round"        ,
+		"exp"          , "expm1"        , "floor"        , "sqrt"         ,
+		"log"          , "log10"        , "trunc"        , "log2"         ,
+		"log1p"        , "logn"         , "rad2deg"      , "deg2rad"      ,
 		"deg2grad"     , "grad2deg"     , "pow"          , "hypot"        ,
 		"mod"          , "root"         , "sum"          , "rest"         ,
 		"mul"          , "div"          , "avg"          , "max"          ,
@@ -548,7 +559,8 @@ namespace details
 			case  43:// +
 			case  45:// -
 				return 1;
-
+			
+			case  37:// %
 			case  42:// *
 			case  47:// /
 				return 2;
@@ -586,6 +598,7 @@ namespace details
 			|| '-' == c
 	    	|| '*' == c
 			|| '/' == c
+			|| '%' == c
 			|| '^' == c
 			|| ',' == c
 			|| 'u' == c
@@ -740,6 +753,12 @@ namespace generator
 
 		tokens->emplace_back(78, "0");
 		tokens->emplace_back(43);
+		
+		if ('-' == *c)
+		{
+			tokens->emplace_back(117);
+			++c;
+		}
 
 		while(c != end)
 		{
@@ -887,8 +906,9 @@ private:
 typedef std::map<std::string, double>::const_iterator m_s_d_cit;
 typedef std::map<std::string, double>::iterator m_s_d_it;
 	std::map<std::string, double> var_store;
+	std::map<std::string, double> constant_store;
 	bool using_constants = true;
-
+	
 public:
 	bool symbol_exist(const std::string& iname) const & noexcept
 	{
@@ -897,13 +917,19 @@ public:
 			if (details::icmp(iname, "pi")) return true;
 			if (details::icmp(iname,  "e")) return true;
 		}
-		return (var_store.find(iname) != var_store.cend());
+		return (var_store.find(iname) != var_store.cend() || constant_store.find(iname) != constant_store.cend());
+	}
+	
+	bool register_constant(std::string newName, double value) & noexcept
+	{
+			auto p = constant_store.emplace(newName, value);
+			return p.second;
 	}
 
-	void add_variable(std::string name, double value) & noexcept
+	bool register_variable(std::string newName, double value) & noexcept
 	{
-		if (!symbol_exist(name))
-			var_store.emplace(name, value);
+			auto p = var_store.emplace(newName, value);
+			return p.second;
 	}
 
 	bool replace_symbol_name(const std::string& old_name, const std::string& new_name) &
@@ -955,13 +981,23 @@ public:
 		return using_constants;
 	}
 
-	double operator[](const std::string& name) const &
+	double operator[](const std::string& iname) const &
 	{
-		return var_store.at(name);
+		if (using_constants)
+		{
+	    	if (details::icmp(iname, "pi")) return numeric_constants::pi;
+		
+	    	if (details::icmp(iname, "e")) return numeric_constants::e;
+		
+	    	auto it = constant_store.find(iname);
+	    	if (it != constant_store.cend()) return it->second;
+		}
+		
+		return var_store.at(iname);
 	}
 
 private:
-friend class parser;
+//friend class parser;
 };
 //----------------------------------------------------------------------------------------------------------------------
 /***class parser***/
@@ -975,30 +1011,30 @@ private:
 	using ptr_function = std::unique_ptr<function_node>;
 
 
-	std::vector<symbol_table> _symbol_table_list; // Symbol Table List
-	symbol_table* c_symbol_table{nullptr};        // Current Symbol Table
+	std::vector<symbol_table> _symbol_table_list;  // Symbol Table List
+	symbol_table* _c_symbol_table{nullptr};        // Current Symbol Table
 
 
-	std::vector<token_t> _token_list;             // Token_t List
-	std::vector<ptr_expr> _output;                // Holder of AST
-	std::vector<int> _operators;				  // Operators
-	std::vector<int> _function_list;	          // Function List
-	arg_stack_t _arg_stack;	                      // Args Holder
-	tree_stack_t _tree_list;				      // Min && Max
+	std::vector<token_t> _token_list;              // Token_t List
+	std::vector<ptr_expr> _output;                 // Holder of AST
+	std::vector<int> _operators;				   // Operators
+	std::vector<int> _function_list;	           // Function List
+	arg_stack_t _arg_stack;	                       // Args Holder
+	tree_stack_t _tree_list;				       // Min && Max
 
 
-    bool _function_opening = false;               // Helpers
+    bool _function_begin{false};                   // Helpers
 	std::vector<int> _counter;
 
 private:
 	void clean_up() noexcept
 	{
-		_function_opening = false;
+		_function_begin = false;
 
 		if (!_symbol_table_list.size())
-			c_symbol_table = nullptr;
+			_c_symbol_table = nullptr;
 		else
-			c_symbol_table = &(_symbol_table_list.back());
+			_c_symbol_table = &(_symbol_table_list.back());
 
 		_output.clear();
 		_operators.clear();
@@ -1029,19 +1065,26 @@ private:
 
     void process_operator(int op)
 	{
-		int opPrecedence = details::precedenceOf(op);
-		while (_operators.size() &&
-			   details::precedenceOf(_operators.back()) >=
-			   opPrecedence
-			   )
+		if (_operators.size())
 		{
-			if ('u' == _operators.back())
-				make_unary();
-			else
-				make_binary();
-
-			_operators.pop_back();
-		}
+			if (234 != op + _operators.back())// Avoid 'u' && 'u'
+			{
+				int opPrecedence = details::precedenceOf(op);
+				
+				while (_operators.size() &&
+					details::precedenceOf(_operators.back()) >=
+					opPrecedence
+					  )
+				{
+					if ('u' == _operators.back())
+						make_unary();
+					else
+						make_binary();
+		
+					_operators.pop_back();
+				}
+			}
+		}	
 		_operators.emplace_back(op);
     }
 
@@ -1049,10 +1092,10 @@ private:
     {
 		_operators.push_back('(');
 
-		if (_function_opening)
+		if (_function_begin)
 		{
 			_counter.push_back(1);
-			_function_opening = false;
+			_function_begin = false;
 		}
 		else
 			_counter.push_back(0);
@@ -1128,7 +1171,7 @@ private:
 				p = std::make_unique<numeric_node>(std::pow(x, 1/y));
 			}
 		}
-		else                                                      // Variadics
+		else                                                         // Variadics
 		{
 			_arg_stack.add_value((_output.back())->value());
 			_output.pop_back();
@@ -1165,16 +1208,7 @@ private:
 
 	void process_symbol(std::string& s) noexcept
 	{
-		if (!c_symbol_table->symbol_exist(s))
-		{
-			double n{0.0};
-			cout << s << " = ";
-			cin >> n;
-			c_symbol_table->add_variable(s, n);
-			_output.push_back(std::make_unique<numeric_node>(n));
-		}
-		else
-		_output.push_back(std::make_unique<numeric_node>(c_symbol_table->operator[](s)));
+		_output.push_back(std::make_unique<numeric_node>(_c_symbol_table->operator[](s)));
 	}
 
 	void process_comma()
@@ -1222,7 +1256,7 @@ private:
 					_tree_list.add_tree();
 		}
 		_function_list.push_back(functionID);
-		_function_opening = true;
+		_function_begin = true;
 	}
 
     binary_node* parse()
@@ -1236,6 +1270,7 @@ private:
 				case '-':
 				case '*':
 				case '/':
+				case '%':				
 				case '^':
 						process_operator(token.ID);
 						break;
@@ -1297,11 +1332,11 @@ private:
 		_token_list[2] = token_t(78, "0");
 		_token_list[3].ID = 43;
 
-		if (!c_symbol_table->symbol_exist(isymbol))
-		    c_symbol_table->add_variable(isymbol, parse()->value());
+		if (!_c_symbol_table->symbol_exist(isymbol))
+		    _c_symbol_table->register_variable(isymbol, parse()->value());
 
 		else
-			c_symbol_table->replace_symbol_value(isymbol, parse()->value());
+			_c_symbol_table->replace_symbol_value(isymbol, parse()->value());
 	}
 
 public:
@@ -1333,48 +1368,43 @@ public:
 		if (!iexpr_str.length())
 			return false;
 
-		c_symbol_table = &itemp_symtab;
+		
+		_c_symbol_table = &itemp_symtab;
 		generator::tokenize(iexpr_str, &_token_list);
 
-		if (is_assignment())
-	        process_assignment();
-		else
+		
+	    process_expression(iexpr_t);
+		toTeX(iexpr_str);
+		//cout.precision(50);
+
+		cout << "<hr color = \"blue\" size = \"15\"/>";
+		cout << "<h2 style = \"color: red; text-align: center;\">  Resultado: </h2>";
+		cout << "<p class = \"azul_fuerte\" align = \"center\"><font size = \"4\">$$" << iexpr_str << " = " << iexpr_t.value() << "$$</font></p>";
+		cout << "<hr color = \"blue\" size = \"15\"/>";
+		cout << "<h2 style = \"color: red; size: 100px; text-align: center;\"> TOKENS: </h2>";
+		for (std::size_t i = 2, size = _token_list.size(); i < size; ++i)
 		{
-	        process_expression(iexpr_t);
-
-			toTeX(iexpr_str);
-			cout.precision(50);
-
-			cout << "<hr color = \"red\" size = \"15\"/>";
-			cout << "<h2 class = \"rojo\" align = \"center\"><ins> Resultado: </ins></h2>";
-		    cout << "<p class = \"azul_fuerte\" align = \"center\"><font size = \"4\">$$" << iexpr_str << " = " << iexpr_t.value() << "$$</font></p>";
-			cout << "<hr color = \"red\" size = \"15\"/>";
-			cout << "<h2 class = \"rojo\" align = \"center\"><ins> TOKENS: </ins></h2>";
-			for (std::size_t i = 2, size = _token_list.size(); i < size; ++i)
+			switch (_token_list.at(i).ID)
 			{
-				switch (_token_list.at(i).ID)
-				{
-					case 78:
-						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Número</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
-					break;
+				case 78:// Number
+					cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Número</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
+				break;
 
-					case 83:
-						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Símbolo</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
-					break;
+				case 83:// Symbol
+					cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Símbolo</strong></span> <span align = \"center\"><strong class = \"rojo\">" << _token_list.at(i).data << "</strong> ::= <span style = 'color: blue;'>" << itemp_symtab[_token_list.at(i).data] << "</span></span></p>";
+				break;
 
-					case 'u':
-						cout << "<p/ align = \"center\" class = \"rojo\"><strong class = \"rojo\">\'-\' Unario</strong></p>";
-					break;
+				case 'u':// Unary sign
+					cout << "<p/ align = \"center\" class = \"rojo\"><strong class = \"rojo\">\'-\' Unario</strong></p>";
+				break;
 
-					default:
-						if (_token_list.at(i).ID > 0)
-							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Operador</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << (char)_token_list.at(i).ID << "</strong></span></p>";
-						else
-							cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Función</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
-				}
+				default:
+					if (_token_list.at(i).ID > 0)
+						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Operador</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << (char)_token_list.at(i).ID << "</strong></span></p>";
+					else
+						cout << "<p/ align = \"center\"><span class = \"morado\"><strong>Función</strong></span> <span align = \"center\">::= <strong class = \"rojo\">" << _token_list.at(i).data << "</strong></span></p>";
 			}
 		}
-
 		clean_up();
 
 		return true;
@@ -1398,7 +1428,7 @@ public:
 		if (!iexpr_t._expr_str.length())
 			return false;
 
-		c_symbol_table = &itemp_symtab;
+		_c_symbol_table = &itemp_symtab;
 		generator::tokenize(iexpr_t._expr_str, &_token_list);
 
 		if (is_assignment())
@@ -1412,16 +1442,60 @@ public:
 	}
 };
 //-----------------------------------------------------------------------------------------------------------------
+std::vector<std::string> get_tokens(const char* c, char delim = ' ')
+{
+    std::vector<std::string> result;
+
+    do
+    {
+        const char* begin = c;
+
+        while(*c != delim && *c)
+            ++c;
+
+        result.emplace_back(begin, c);
+    }
+	while (0 != *c++);
+
+    return result;
+}
+//-----------------------------------------------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-	std::string s(argv[1]);
-	
 	symbol_table t;
-	//t.disable_constants();
 	parser p;
 	expression e;
+	std::string s;
+	
+	std::ifstream rf("C:/wamp64/www/Calculadora_Online/itrig_mode.txt");
+	rf >> s;
+	set_trig_mode(s[0]);
+	rf.close();
+	
+	rf.open("C:/wamp64/www/Calculadora_Online/ivar_names.txt");
+	rf >> s;
+	std::vector<std::string> variables = get_tokens(s.data(), ',');
+	rf.close();
+	
+	rf.open("C:/wamp64/www/Calculadora_Online/ivar_values.txt");
+	rf >> s;
+	std::vector<std::string> values = get_tokens(s.data(), ',');
+	rf.close();
+	
+	rf.open("C:/wamp64/www/Calculadora_Online/iexpr.txt");
+	rf >> s;
+	rf.close();
+
+	
+	std::size_t size = variables.size();
+	if (size)
+	{
+		for (std::size_t i = 0; i < size; ++i)
+			t.register_variable(variables[i], std::stod(values[i]));
+	}
 	
 	p.compile(e, s, t);
+	
 	
 	return 0;
 }
